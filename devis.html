@@ -426,65 +426,29 @@
     </footer>
 
     <script>
-        // Vérification de la connexion
-        const userEmail = localStorage.getItem('userEmail');
-        const userPseudo = localStorage.getItem('userPseudo');
-
-        // Ne rediriger vers login que si on essaie d'accéder à une page protégée
-        if (!userEmail || !userPseudo) {
-            // Vérifier si on est sur une page protégée
-            if (window.location.pathname.includes('devis.html') || 
-                window.location.pathname.includes('bug-report.html')) {
-                // Ne pas rediriger si on clique sur le lien Accueil
-                if (!window.location.href.includes('index.html')) {
-                    window.location.href = 'login.html';
-                }
-            }
-        }
-
-        // Gestion des détails des organiques
-        document.addEventListener('DOMContentLoaded', function() {
-            const radioButtons = document.querySelectorAll('input[name="organiques"]');
-            const details = document.getElementById('organiquesDetails');
-            const message = document.getElementById('organiquesMessage');
-
-            // Vérifier l'état initial
-            const checkedRadio = document.querySelector('input[name="organiques"]:checked');
-            if (checkedRadio && checkedRadio.value === 'oui') {
-                details.style.display = 'block';
-                message.style.display = 'block';
-            }
-
-            radioButtons.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    if (this.value === 'oui') {
-                        details.style.display = 'block';
-                        message.style.display = 'block';
-                    } else {
-                        details.style.display = 'none';
-                        message.style.display = 'none';
-                    }
-                });
-            });
-        });
-
+        const BACKEND_URL = 'https://websiteluscianabackend.onrender.com';
+        
         // Charger l'historique des devis
         async function loadDevisHistory() {
             try {
-                const response = await fetch('/api/devis', {
+                const response = await fetch(`${BACKEND_URL}/api/devis`, {
                     headers: {
-                        'x-user-email': userEmail,
-                        'x-user-pseudo': userPseudo
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-                const devis = await response.json();
                 
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement des devis');
+                }
+                
+                const devis = await response.json();
                 const historyContainer = document.getElementById('devisHistory');
+                
                 if (devis.length === 0) {
                     historyContainer.innerHTML = '<p>Aucun devis soumis pour le moment.</p>';
                     return;
                 }
-
+                
                 historyContainer.innerHTML = devis.map(devis => `
                     <div class="devis-card" style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                         <h3>Devis #${devis.id}</h3>
@@ -494,7 +458,6 @@
                         <p><strong>Deadline:</strong> ${devis.jours} jours</p>
                         <p><strong>Date:</strong> ${new Date(devis.date).toLocaleDateString()}</p>
                         <p><strong>Statut:</strong> ${devis.status}</p>
-                        <p><strong>Détails:</strong></p>
                         <ul>
                             <li>Organiques: ${devis.organiques}</li>
                             <li>Terraforming: ${devis.terraforming}</li>
@@ -510,46 +473,40 @@
             }
         }
 
-        // Gestion du formulaire
+        // Gestion du formulaire de devis
         document.getElementById('devisForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const formData = {
-                exclusivite: document.querySelector('input[name="exclusivite"]:checked').value,
-                organiques: document.querySelector('input[name="organiques"]:checked').value,
-                organiques_grand: document.querySelector('input[name="organiques_grand"]')?.value || 0,
-                organiques_petit: document.querySelector('input[name="organiques_petit"]')?.value || 0,
-                organiques_tres_petit: document.querySelector('input[name="organiques_tres_petit"]')?.value || 0,
-                terraforming: document.querySelector('input[name="terraforming"]:checked').value,
-                painting: document.querySelector('input[name="painting"]:checked').value,
-                eau: document.querySelector('input[name="eau"]:checked').value,
-                arbres: document.querySelector('input[name="arbres"]:checked').value,
-                type: Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value),
-                jours: document.querySelector('input[name="jours"]').value,
-                besoins: document.querySelector('textarea[name="besoins"]').value
+            const formData = new FormData(this);
+            const devisData = {
+                type: formData.getAll('type'),
+                besoins: formData.get('besoins'),
+                exclusivite: formData.get('exclusivite'),
+                jours: formData.get('jours'),
+                organiques: formData.get('organiques'),
+                terraforming: formData.get('terraforming'),
+                painting: formData.get('painting'),
+                eau: formData.get('eau'),
+                arbres: formData.get('arbres')
             };
 
             try {
-                const API_URL = import.meta.env.VITE_API_URL;
-                const response = await fetch(`${API_URL}/devis`, {
+                const response = await fetch(`${BACKEND_URL}/api/devis`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-user-email': userEmail,
-                        'x-user-pseudo': userPseudo
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(devisData)
                 });
 
-                const data = await response.json();
-                
-                if (response.ok) {
-                    alert('Votre devis a été soumis avec succès !');
-                    document.getElementById('devisForm').reset();
-                    loadDevisHistory(); // Recharger l'historique
-                } else {
-                    alert('Erreur: ' + data.error);
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la soumission du devis');
                 }
+
+                alert('Votre devis a été soumis avec succès !');
+                document.getElementById('devisForm').reset();
+                loadDevisHistory(); // Recharger l'historique
             } catch (error) {
                 console.error('Erreur:', error);
                 alert('Une erreur est survenue lors de la soumission du devis');

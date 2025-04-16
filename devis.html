@@ -477,7 +477,23 @@
         document.getElementById('devisForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Vous devez être connecté pour soumettre un devis');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Validation des champs requis
             const formData = new FormData(this);
+            const requiredFields = ['exclusivite', 'organiques', 'terraforming', 'painting', 'eau', 'arbres'];
+            const missingFields = requiredFields.filter(field => !formData.get(field));
+            
+            if (missingFields.length > 0) {
+                alert(`Veuillez remplir les champs suivants: ${missingFields.join(', ')}`);
+                return;
+            }
+
             const devisData = {
                 type: formData.getAll('type'),
                 besoins: formData.get('besoins'),
@@ -490,26 +506,30 @@
                 arbres: formData.get('arbres')
             };
 
+            console.log('Données du devis à envoyer:', devisData);
+
             try {
                 const response = await fetch(`${BACKEND_URL}/api/devis`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(devisData)
                 });
 
+                const data = await response.json();
+
                 if (!response.ok) {
-                    throw new Error('Erreur lors de la soumission du devis');
+                    throw new Error(data.details || 'Erreur lors de la soumission du devis');
                 }
 
                 alert('Votre devis a été soumis avec succès !');
                 document.getElementById('devisForm').reset();
-                loadDevisHistory(); // Recharger l'historique
+                loadDevisHistory();
             } catch (error) {
-                console.error('Erreur:', error);
-                alert('Une erreur est survenue lors de la soumission du devis');
+                console.error('Erreur détaillée:', error);
+                alert(`Une erreur est survenue: ${error.message}`);
             }
         });
 

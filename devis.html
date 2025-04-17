@@ -428,51 +428,6 @@
     <script>
         const BACKEND_URL = 'https://websiteluscianabackend.onrender.com';
         
-        // Charger l'historique des devis
-        async function loadDevisHistory() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/devis`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erreur lors du chargement des devis');
-                }
-                
-                const devis = await response.json();
-                const historyContainer = document.getElementById('devisHistory');
-                
-                if (devis.length === 0) {
-                    historyContainer.innerHTML = '<p>Aucun devis soumis pour le moment.</p>';
-                    return;
-                }
-                
-                historyContainer.innerHTML = devis.map(devis => `
-                    <div class="devis-card" style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                        <h3>Devis #${devis.id}</h3>
-                        <p><strong>Type:</strong> ${devis.type.join(', ')}</p>
-                        <p><strong>Description:</strong> ${devis.besoins || 'Non spécifiée'}</p>
-                        <p><strong>Budget estimé:</strong> ${devis.exclusivite === 'oui' ? 'Sur devis (exclusif)' : 'Sur devis'}</p>
-                        <p><strong>Deadline:</strong> ${devis.jours} jours</p>
-                        <p><strong>Date:</strong> ${new Date(devis.date).toLocaleDateString()}</p>
-                        <p><strong>Statut:</strong> ${devis.status}</p>
-                        <ul>
-                            <li>Organiques: ${devis.organiques}</li>
-                            <li>Terraforming: ${devis.terraforming}</li>
-                            <li>Painting: ${devis.painting}</li>
-                            <li>Type d'eau: ${devis.eau}</li>
-                            <li>Type d'arbres: ${devis.arbres}</li>
-                        </ul>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Erreur:', error);
-                document.getElementById('devisHistory').innerHTML = '<p>Erreur lors du chargement de l\'historique</p>';
-            }
-        }
-
         // Gestion du formulaire de devis
         document.getElementById('devisForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -524,17 +479,13 @@
                     throw new Error(data.details || 'Erreur lors de la soumission du devis');
                 }
 
-                alert('Votre devis a été soumis avec succès !');
+                alert(`Votre devis a été calculé avec succès ! Prix total: ${data.prixTotal}€`);
                 document.getElementById('devisForm').reset();
-                loadDevisHistory();
             } catch (error) {
                 console.error('Erreur détaillée:', error);
                 alert(`Une erreur est survenue: ${error.message}`);
             }
         });
-
-        // Charger l'historique au chargement de la page
-        loadDevisHistory();
     </script>
 </body>
 </html> 

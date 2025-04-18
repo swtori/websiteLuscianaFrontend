@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Signalements de Bugs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1877f2;
+            margin-bottom: 2rem;
+        }
+        .bug-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .bug-card h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .bug-info {
+            margin-bottom: 0.5rem;
+        }
+        .bug-info strong {
+            color: #666;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-nouveau {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .status-en-cours {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+        .status-resolu {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        .filters {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .refresh-button {
+            padding: 0.5rem 1rem;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .refresh-button:hover {
+            background-color: #166fe5;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .login-form input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .login-form button:hover {
+            background-color: #166fe5;
+        }
+        .admin-content {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="loginSection" class="login-form">
+        <h1>Connexion Admin</h1>
+        <input type="password" id="adminPassword" placeholder="Mot de passe admin">
+        <button onclick="login()">Se connecter</button>
+    </div>
+
+    <div id="adminSection" class="admin-container admin-content">
+        <h1>Panel Admin - Signalements de Bugs</h1>
+        
+        <div class="filters">
+            <select id="statusFilter">
+                <option value="all">Tous les statuts</option>
+                <option value="nouveau">Nouveau</option>
+                <option value="en-cours">En cours</option>
+                <option value="resolu">Résolu</option>
+            </select>
+            <button class="refresh-button" onclick="loadBugs()">Actualiser</button>
+        </div>
+
+        <div id="bugsList"></div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://websiteluscianabackend.onrender.com';
+        let adminPassword = '';
+
+        function login() {
+            const password = document.getElementById('adminPassword').value;
+            adminPassword = password;
+            
+            // Tester la connexion en chargeant les bugs
+            loadBugs();
+        }
+
+        async function loadBugs() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/bugs`, {
+                    headers: {
+                        'x-admin-password': adminPassword
+                    }
+                });
+                
+                if (response.status === 401) {
+                    alert('Mot de passe incorrect');
+                    return;
+                }
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Erreur lors du chargement des bugs');
+                }
+
+                // Si on arrive ici, c'est que le mot de passe est correct
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminSection').style.display = 'block';
+
+                const statusFilter = document.getElementById('statusFilter').value;
+                const filteredBugs = statusFilter === 'all' 
+                    ? data.bugs 
+                    : data.bugs.filter(bug => bug.status === statusFilter);
+
+                displayBugs(filteredBugs);
+            } catch (error) {
+                console.error('Erreur:', error);
+                if (document.getElementById('adminSection').style.display === 'block') {
+                    document.getElementById('bugsList').innerHTML = '<p>Erreur lors du chargement des signalements</p>';
+                }
+            }
+        }
+
+        function displayBugs(bugs) {
+            const bugsList = document.getElementById('bugsList');
+            
+            if (bugs.length === 0) {
+                bugsList.innerHTML = '<p>Aucun signalement trouvé</p>';
+                return;
+            }
+
+            bugsList.innerHTML = bugs.map(bug => `
+                <div class="bug-card">
+                    <h3>Signalement #${bug.id}</h3>
+                    <div class="bug-info">
+                        <strong>Catégorie:</strong> ${bug.category}
+                    </div>
+                    <div class="bug-info">
+                        <strong>Description:</strong> ${bug.description}
+                    </div>
+                    <div class="bug-info">
+                        <strong>Signalé par:</strong> ${bug.reportedBy.pseudo} (${bug.reportedBy.email})
+                    </div>
+                    <div class="bug-info">
+                        <strong>Date:</strong> ${new Date(bug.date).toLocaleString()}
+                    </div>
+                    <div class="bug-info">
+                        <strong>Statut:</strong> 
+                        <span class="status-badge status-${bug.status}">${bug.status}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Actualiser la liste quand le filtre change
+        document.getElementById('statusFilter').addEventListener('change', loadBugs);
+    </script>
+</body>
+</html> 

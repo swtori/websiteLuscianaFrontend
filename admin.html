@@ -204,7 +204,7 @@
         function displayBugs(bugs) {
             const bugsList = document.getElementById('bugsList');
             
-            if (bugs.length === 0) {
+            if (!bugs || bugs.length === 0) {
                 bugsList.innerHTML = '<p>Aucun signalement trouvé</p>';
                 return;
             }

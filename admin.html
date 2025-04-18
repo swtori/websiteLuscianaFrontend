@@ -153,18 +153,22 @@
         async function loadBugs() {
             try {
                 console.log('Tentative de connexion à:', `${BACKEND_URL}/api/bugs`);
+                console.log('Mot de passe envoyé:', adminPassword);
+                
                 const response = await fetch(`${BACKEND_URL}/api/bugs`, {
+                    method: 'GET',
                     headers: {
                         'x-admin-password': adminPassword,
-                        'Content-Type': 'application/json'
-                    },
-                    mode: 'cors'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
                 }).catch(error => {
                     console.error('Erreur de connexion:', error);
                     throw new Error(`Impossible de se connecter au serveur. Vérifiez que le backend est bien en ligne. Détails: ${error.message}`);
                 });
                 
                 console.log('Réponse du serveur:', response.status);
+                console.log('Headers de la réponse:', response.headers);
                 
                 if (response.status === 401) {
                     alert('Mot de passe incorrect');

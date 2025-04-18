@@ -103,6 +103,8 @@
     </div>
 
     <script>
+        const BACKEND_URL = 'https://websiteluscianabackend.onrender.com';
+        
         // Vérification de la connexion
         const userEmail = localStorage.getItem('userEmail');
         const userPseudo = localStorage.getItem('userPseudo');
@@ -123,12 +125,10 @@
             };
 
             try {
-                const response = await fetch('/api/bug-report', {
+                const response = await fetch(`${BACKEND_URL}/api/bug-report`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'x-user-email': userEmail,
-                        'x-user-pseudo': userPseudo
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(formData)
                 });

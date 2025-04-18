@@ -152,11 +152,16 @@
 
         async function loadBugs() {
             try {
-                console.log('Tentative de chargement des bugs...');
+                console.log('Tentative de connexion à:', `${BACKEND_URL}/api/bugs`);
                 const response = await fetch(`${BACKEND_URL}/api/bugs`, {
                     headers: {
-                        'x-admin-password': adminPassword
-                    }
+                        'x-admin-password': adminPassword,
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors'
+                }).catch(error => {
+                    console.error('Erreur de connexion:', error);
+                    throw new Error(`Impossible de se connecter au serveur. Vérifiez que le backend est bien en ligne. Détails: ${error.message}`);
                 });
                 
                 console.log('Réponse du serveur:', response.status);

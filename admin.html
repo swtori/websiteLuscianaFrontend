@@ -209,27 +209,40 @@
                 return;
             }
 
-            bugsList.innerHTML = bugs.map(bug => `
-                <div class="bug-card">
-                    <h3>Signalement #${bug.id}</h3>
-                    <div class="bug-info">
-                        <strong>Catégorie:</strong> ${bug.category}
+            console.log('Bugs reçus:', bugs);
+
+            bugsList.innerHTML = bugs.map(bug => {
+                // Vérification de la structure des données
+                const reportedBy = bug.reportedBy || {};
+                const pseudo = reportedBy.pseudo || 'Anonyme';
+                const email = reportedBy.email || 'Non spécifié';
+                const category = bug.category || 'Non spécifiée';
+                const description = bug.description || 'Aucune description';
+                const status = bug.status || 'nouveau';
+                const date = bug.date ? new Date(bug.date).toLocaleString() : 'Date non spécifiée';
+
+                return `
+                    <div class="bug-card">
+                        <h3>Signalement #${bug.id || 'N/A'}</h3>
+                        <div class="bug-info">
+                            <strong>Catégorie:</strong> ${category}
+                        </div>
+                        <div class="bug-info">
+                            <strong>Description:</strong> ${description}
+                        </div>
+                        <div class="bug-info">
+                            <strong>Signalé par:</strong> ${pseudo} (${email})
+                        </div>
+                        <div class="bug-info">
+                            <strong>Date:</strong> ${date}
+                        </div>
+                        <div class="bug-info">
+                            <strong>Statut:</strong> 
+                            <span class="status-badge status-${status}">${status}</span>
+                        </div>
                     </div>
-                    <div class="bug-info">
-                        <strong>Description:</strong> ${bug.description}
-                    </div>
-                    <div class="bug-info">
-                        <strong>Signalé par:</strong> ${bug.reportedBy.pseudo} (${bug.reportedBy.email})
-                    </div>
-                    <div class="bug-info">
-                        <strong>Date:</strong> ${new Date(bug.date).toLocaleString()}
-                    </div>
-                    <div class="bug-info">
-                        <strong>Statut:</strong> 
-                        <span class="status-badge status-${bug.status}">${bug.status}</span>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Actualiser la liste quand le filtre change

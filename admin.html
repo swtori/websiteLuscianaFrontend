@@ -143,6 +143,7 @@
 
         function login() {
             const password = document.getElementById('adminPassword').value;
+            console.log('Tentative de connexion avec le mot de passe:', password);
             adminPassword = password;
             
             // Tester la connexion en chargeant les bugs
@@ -151,11 +152,14 @@
 
         async function loadBugs() {
             try {
+                console.log('Tentative de chargement des bugs...');
                 const response = await fetch(`${BACKEND_URL}/api/bugs`, {
                     headers: {
                         'x-admin-password': adminPassword
                     }
                 });
+                
+                console.log('Réponse du serveur:', response.status);
                 
                 if (response.status === 401) {
                     alert('Mot de passe incorrect');
@@ -163,6 +167,7 @@
                 }
 
                 const data = await response.json();
+                console.log('Données reçues:', data);
                 
                 if (!response.ok) {
                     throw new Error(data.error || 'Erreur lors du chargement des bugs');
@@ -179,7 +184,8 @@
 
                 displayBugs(filteredBugs);
             } catch (error) {
-                console.error('Erreur:', error);
+                console.error('Erreur détaillée:', error);
+                alert('Erreur: ' + error.message);
                 if (document.getElementById('adminSection').style.display === 'block') {
                     document.getElementById('bugsList').innerHTML = '<p>Erreur lors du chargement des signalements</p>';
                 }

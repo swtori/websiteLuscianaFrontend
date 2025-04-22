@@ -76,9 +76,46 @@
         .signup-form.show {
             display: block;
         }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-message {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .loading-message i {
+            font-size: 2em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .submit-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-message">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Connexion en cours, cela peut prendre un moment...</p>
+        </div>
+    </div>
     <div class="login-container">
         <h1>Connexion</h1>
         <form id="loginForm">
@@ -123,6 +160,12 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
+            // Afficher l'indicateur de chargement
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const submitButton = document.querySelector('.submit-button');
+            loadingOverlay.style.display = 'flex';
+            submitButton.disabled = true;
+            
             try {
                 const response = await fetch(`${BACKEND_URL}/api/login`, {
                     method: 'POST',
@@ -147,7 +190,11 @@
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue lors de la connexion');
+                alert(error.message || 'Une erreur est survenue lors de la connexion');
+            } finally {
+                // Cacher l'indicateur de chargement
+                loadingOverlay.style.display = 'none';
+                submitButton.disabled = false;
             }
         });
 

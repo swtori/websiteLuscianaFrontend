@@ -480,7 +480,9 @@
                 const response = await fetch('https://websiteluscianabackend.onrender.com/api/devis', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Origin': 'https://lusciana-build-team.vercel.app'
                     },
                     body: JSON.stringify({
                         buildSize,

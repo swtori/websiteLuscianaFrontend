@@ -142,6 +142,7 @@
 
     <script>
         const BACKEND_URL = 'https://websiteluscianabackend.onrender.com';
+        const TIMEOUT_DURATION = 30000; // 30 secondes de timeout
         
         // Vérification de la connexion
         const userEmail = localStorage.getItem('userEmail');
@@ -169,13 +170,20 @@
             };
 
             try {
+                // Créer un contrôleur d'abandon
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+
                 const response = await fetch(`${BACKEND_URL}/api/bug-report`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(formData),
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
 
                 const data = await response.json();
                 
@@ -187,7 +195,11 @@
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert(error.message || 'Une erreur est survenue lors de l\'envoi du signalement');
+                if (error.name === 'AbortError') {
+                    alert('Le temps d\'attente a été dépassé. Veuillez réessayer dans quelques instants.');
+                } else {
+                    alert(error.message || 'Une erreur est survenue lors de l\'envoi du signalement');
+                }
             } finally {
                 // Cacher l'indicateur de chargement
                 loadingOverlay.style.display = 'none';

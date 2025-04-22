@@ -142,7 +142,7 @@
 
     <script>
         const BACKEND_URL = 'https://websiteluscianabackend.onrender.com';
-        const TIMEOUT_DURATION = 30000; // 30 secondes de timeout
+        const TIMEOUT_DURATION = 60000; // 60 secondes de timeout
         
         // Vérification de la connexion
         const userEmail = localStorage.getItem('userEmail');
@@ -150,6 +150,20 @@
 
         if (!userEmail || !userPseudo) {
             window.location.href = 'login.html';
+        }
+
+        // Fonction pour vérifier si le backend est en ligne
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`, {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(5000) // 5 secondes max pour la vérification
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Erreur lors de la vérification du backend:', error);
+                return false;
+            }
         }
 
         // Gestion du formulaire
@@ -161,6 +175,15 @@
             const submitButton = document.querySelector('.submit-button');
             loadingOverlay.style.display = 'flex';
             submitButton.disabled = true;
+            
+            // Vérifier si le backend est en ligne
+            const isBackendOnline = await checkBackendStatus();
+            if (!isBackendOnline) {
+                alert('Le serveur est en cours de démarrage. Veuillez réessayer dans quelques instants.');
+                loadingOverlay.style.display = 'none';
+                submitButton.disabled = false;
+                return;
+            }
             
             const formData = {
                 category: document.getElementById('category').value,
@@ -196,7 +219,7 @@
             } catch (error) {
                 console.error('Erreur:', error);
                 if (error.name === 'AbortError') {
-                    alert('Le temps d\'attente a été dépassé. Veuillez réessayer dans quelques instants.');
+                    alert('Le temps d\'attente a été dépassé. Le serveur est peut-être en cours de démarrage. Veuillez réessayer dans quelques instants.');
                 } else {
                     alert(error.message || 'Une erreur est survenue lors de l\'envoi du signalement');
                 }

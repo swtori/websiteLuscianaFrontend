@@ -385,7 +385,7 @@
                         Fausse eau
                     </label>
                 </div>
-                <p>La vraie eau est plus chère mais plus réaliste, la fausse eau est plus économique</p>
+                <p>La fausse eau est plus chère mais plus réaliste, la vraie eau est plus économique</p>
             </div>
 
             <div class="form-group">
@@ -464,16 +464,17 @@
         document.getElementById('devisForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // Récupération des valeurs du formulaire
             const buildSize = document.getElementById('buildSize').value;
-            const type = document.querySelector('input[name="type"]:checked').value;
-            const exclusivite = document.getElementById('exclusivite').checked;
-            const organiques = document.getElementById('organiques').checked;
-            const terraforming = document.getElementById('terraforming').checked;
-            const painting = document.getElementById('painting').checked;
-            const eau = document.getElementById('eau').checked;
-            const arbres = document.getElementById('arbres').checked;
-            const besoins = document.getElementById('besoins').value;
-            const date = document.getElementById('jours').value;
+            const type = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value);
+            const exclusivite = document.querySelector('input[name="exclusivite"]:checked').value;
+            const organiques = document.querySelector('input[name="organiques"]:checked').value;
+            const terraforming = document.querySelector('input[name="terraforming"]:checked').value;
+            const painting = document.querySelector('input[name="painting"]:checked').value;
+            const eau = document.querySelector('input[name="eau"]:checked').value;
+            const arbres = document.querySelector('input[name="arbres"]:checked').value;
+            const besoins = document.querySelector('textarea[name="besoins"]').value;
+            const date = document.querySelector('input[name="jours"]').value;
             
             try {
                 const response = await fetch('https://websiteluscianabackend.onrender.com/api/devis', {
@@ -496,7 +497,8 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erreur lors de la création du devis');
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || 'Erreur lors de la création du devis');
                 }
 
                 const data = await response.json();
@@ -509,15 +511,15 @@
                 devisElement.innerHTML = `
                     <h3>Devis #${data.devisId}</h3>
                     <p>Taille: ${buildSize}x${buildSize}</p>
-                    <p>Type: ${type}</p>
+                    <p>Type: ${type.join(', ')}</p>
                     <p>Prix: ${data.prixTotal}€</p>
-                    <p>Date: ${new Date(date).toLocaleDateString()}</p>
+                    <p>Date souhaitée: ${date} jours</p>
                 `;
                 devisHistory.appendChild(devisElement);
                 
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue lors de la création du devis');
+                alert(error.message || 'Une erreur est survenue lors de la création du devis');
             }
         });
     </script>

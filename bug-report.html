@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signalement de Bug</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,7 +47,7 @@
             min-height: 150px;
             resize: vertical;
         }
-        button {
+        .submit-button {
             width: 100%;
             padding: 0.75rem;
             background-color: #1877f2;
@@ -57,8 +58,12 @@
             font-size: 1rem;
             font-weight: 500;
         }
-        button:hover {
+        .submit-button:hover {
             background-color: #166fe5;
+        }
+        .submit-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
         }
         h1 {
             text-align: center;
@@ -97,11 +102,6 @@
             color: var(--primary-color);
             margin-bottom: 10px;
         }
-
-        .submit-button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 <body>
@@ -126,7 +126,7 @@
                 <textarea id="description" name="description" required 
                     placeholder="Décrivez le bug en détail, en incluant les étapes pour le reproduire si possible..."></textarea>
             </div>
-            <button type="submit">Envoyer le signalement</button>
+            <button type="submit" class="submit-button">Envoyer le signalement</button>
         </form>
         <div id="successMessage" class="success-message">
             Votre signalement a été envoyé avec succès !

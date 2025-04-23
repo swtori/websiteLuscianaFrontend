@@ -399,6 +399,88 @@
         .devis-button:hover {
             background-color: var(--secondary-color);
         }
+
+        .recruitment {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 4rem 2rem;
+        }
+
+        .recruitment-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .recruitment h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .recruitment p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .recruitment-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .recruitment-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .recruitment-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .recruitment-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recruitment-info li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .recruitment-info i {
+            color: var(--light-color);
+        }
+
+        .recruitment-cta {
+            flex: 1;
+            text-align: center;
+        }
+
+        .recruitment-cta p {
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .recruitment-content {
+                flex-direction: column;
+            }
+
+            .recruitment-info {
+                text-align: center;
+            }
+
+            .recruitment-info li {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -413,6 +495,7 @@
                     <li><a href="/"><i class="fas fa-home"></i> Accueil</a></li>
                     <li><a href="#" id="devisLink"><i class="fas fa-file-invoice"></i> Devis</a></li>
                     <li><a href="#" id="bugLink"><i class="fas fa-bug"></i> Signaler un Bug</a></li>
+                    <li><a href="#" id="recrutementLink"><i class="fas fa-users"></i> Rejoindre l'équipe</a></li>
                     <li id="userInfo" style="display: none;">
                         <span style="color: var(--light-color);">
                             <i class="fas fa-user"></i> 
@@ -481,6 +564,28 @@
                 <h3>Projets Personnalisés</h3>
                 <p>Réalisation de tout type de build selon vos besoins</p>
                 <a href="devis.html" class="devis-button">Demander un Devis</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="recruitment">
+        <div class="recruitment-container">
+            <h2>Rejoignez notre équipe</h2>
+            <p>Vous êtes passionné(e) par Minecraft et la création de builds ? Nous recherchons des talents pour rejoindre notre équipe !</p>
+            <div class="recruitment-content">
+                <div class="recruitment-info">
+                    <h3>Pourquoi nous rejoindre ?</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Travailler sur des projets variés et créatifs</li>
+                        <li><i class="fas fa-check"></i> Évoluer dans une équipe passionnée</li>
+                        <li><i class="fas fa-check"></i> Développer vos compétences en building</li>
+                        <li><i class="fas fa-check"></i> Participer à des projets communautaires</li>
+                    </ul>
+                </div>
+                <div class="recruitment-cta">
+                    <p>Vous pensez avoir le profil ?</p>
+                    <a href="#" id="recruitmentButton" class="cta-button">Postuler maintenant</a>
+                </div>
             </div>
         </div>
     </section>
@@ -682,6 +787,18 @@
             devisButtons.forEach(button => {
                 button.addEventListener('click', handleDevisClick);
             });
+        });
+
+        // Gestion du lien de recrutement
+        document.getElementById('recrutementLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open('https://forms.gle/cTSxrW7KX2JRRk6C7', '_blank');
+        });
+
+        // Gestion du bouton de recrutement
+        document.getElementById('recruitmentButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open('https://forms.gle/cTSxrW7KX2JRRk6C7', '_blank');
         });
     </script>
 </body>

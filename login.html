@@ -168,14 +168,26 @@
 
     <script>
         const BACKEND_URL = 'https://websiteluscianabackend.onrender.com';
+        const TIMEOUT_DURATION = 60000; // 60 secondes de timeout
         
+        // Fonction pour vérifier si le backend est en ligne
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`, {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(5000)
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Erreur lors de la vérification du backend:', error);
+                return false;
+            }
+        }
+
         // Gestion du formulaire de connexion
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
             // Afficher l'indicateur de chargement
             const loadingOverlay = document.getElementById('loadingOverlay');
             const submitButton = document.querySelector('.submit-button');
@@ -183,13 +195,32 @@
             submitButton.disabled = true;
             
             try {
+                // Vérifier si le backend est en ligne
+                const isBackendOnline = await checkBackendStatus();
+                if (!isBackendOnline) {
+                    alert('Le serveur est en cours de démarrage. Veuillez réessayer dans quelques instants.');
+                    loadingOverlay.style.display = 'none';
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                // Créer un contrôleur d'abandon
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+
                 const response = await fetch(`${BACKEND_URL}/api/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email, password }),
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
 
                 const data = await response.json();
                 
@@ -206,7 +237,13 @@
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert(error.message || 'Une erreur est survenue lors de la connexion');
+                if (error.name === 'AbortError') {
+                    alert('Le temps d\'attente a été dépassé. Le serveur est peut-être en cours de démarrage. Veuillez réessayer dans quelques instants.');
+                } else if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+                    alert('Impossible de se connecter au serveur. Veuillez réessayer dans quelques instants.');
+                } else {
+                    alert(error.message || 'Une erreur est survenue lors de la connexion');
+                }
             } finally {
                 // Cacher l'indicateur de chargement
                 loadingOverlay.style.display = 'none';
@@ -223,18 +260,40 @@
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('signupEmail').value;
-            const pseudo = document.getElementById('signupPseudo').value;
-            const password = document.getElementById('signupPassword').value;
-
+            // Afficher l'indicateur de chargement
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const submitButton = document.querySelector('.submit-button');
+            loadingOverlay.style.display = 'flex';
+            submitButton.disabled = true;
+            
             try {
+                // Vérifier si le backend est en ligne
+                const isBackendOnline = await checkBackendStatus();
+                if (!isBackendOnline) {
+                    alert('Le serveur est en cours de démarrage. Veuillez réessayer dans quelques instants.');
+                    loadingOverlay.style.display = 'none';
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                const email = document.getElementById('signupEmail').value;
+                const pseudo = document.getElementById('signupPseudo').value;
+                const password = document.getElementById('signupPassword').value;
+
+                // Créer un contrôleur d'abandon
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+
                 const response = await fetch(`${BACKEND_URL}/api/signup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ email, pseudo, password })
+                    body: JSON.stringify({ email, pseudo, password }),
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
 
                 const data = await response.json();
                 
@@ -246,7 +305,17 @@
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue lors de la création du compte');
+                if (error.name === 'AbortError') {
+                    alert('Le temps d\'attente a été dépassé. Le serveur est peut-être en cours de démarrage. Veuillez réessayer dans quelques instants.');
+                } else if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+                    alert('Impossible de se connecter au serveur. Veuillez réessayer dans quelques instants.');
+                } else {
+                    alert(error.message || 'Une erreur est survenue lors de la création du compte');
+                }
+            } finally {
+                // Cacher l'indicateur de chargement
+                loadingOverlay.style.display = 'none';
+                submitButton.disabled = false;
             }
         });
     </script>

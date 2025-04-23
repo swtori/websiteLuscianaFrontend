@@ -651,6 +651,38 @@
                 window.location.href = '/';
             });
         });
+
+        // Fonction pour vérifier si l'utilisateur est connecté
+        function checkLogin() {
+            const userEmail = localStorage.getItem('userEmail');
+            const userPseudo = localStorage.getItem('userPseudo');
+            return !!(userEmail && userPseudo);
+        }
+
+        // Fonction pour gérer la redirection vers devis
+        function handleDevisClick(e) {
+            e.preventDefault();
+            if (checkLogin()) {
+                window.location.href = 'devis.html';
+            } else {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Ajouter les écouteurs d'événements pour tous les boutons de devis
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bouton dans la navigation
+            const navDevisButton = document.querySelector('nav a[href="devis.html"]');
+            if (navDevisButton) {
+                navDevisButton.addEventListener('click', handleDevisClick);
+            }
+
+            // Boutons dans le contenu
+            const devisButtons = document.querySelectorAll('a[href="devis.html"]');
+            devisButtons.forEach(button => {
+                button.addEventListener('click', handleDevisClick);
+            });
+        });
     </script>
 </body>
 </html> 

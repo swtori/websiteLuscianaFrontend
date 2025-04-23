@@ -300,6 +300,11 @@
             margin-bottom: 10px;
         }
 
+        .loading-message p {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
         .submit-button:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
@@ -323,7 +328,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-message">
             <i class="fas fa-spinner fa-spin"></i>
-            <p>Envoi en cours, cela peut prendre un moment...</p>
+            <p>Envoi du formulaire en cours. Cela peut prendre un moment...</p>
         </div>
     </div>
 
@@ -492,6 +497,8 @@
     <script>
         const BACKEND_URL = 'https://websiteluscianabackend.onrender.com';
         const TIMEOUT_DURATION = 60000; // 60 secondes de timeout
+        const MAX_RETRIES = 3; // Nombre maximum de tentatives
+        const RETRY_DELAY = 5000; // Délai entre les tentatives (5 secondes)
         
         // Vérification de la connexion au chargement de la page
         document.addEventListener('DOMContentLoaded', function() {
@@ -516,6 +523,22 @@
                 console.error('Erreur lors de la vérification du backend:', error);
                 return false;
             }
+        }
+
+        // Fonction pour attendre que le backend soit en ligne
+        async function waitForBackend() {
+            let retries = 0;
+            while (retries < MAX_RETRIES) {
+                const isBackendOnline = await checkBackendStatus();
+                if (isBackendOnline) {
+                    return true;
+                }
+                retries++;
+                if (retries < MAX_RETRIES) {
+                    await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+                }
+            }
+            return false;
         }
 
         // Gestion de l'affichage de la taille
@@ -552,10 +575,10 @@
             submitButton.disabled = true;
             
             try {
-                // Vérifier si le backend est en ligne
-                const isBackendOnline = await checkBackendStatus();
+                // Attendre que le backend soit en ligne
+                const isBackendOnline = await waitForBackend();
                 if (!isBackendOnline) {
-                    alert('Le serveur est en cours de démarrage. Veuillez réessayer dans quelques instants.');
+                    alert('Le serveur n\'est pas disponible pour le moment. Veuillez réessayer dans quelques instants.');
                     loadingOverlay.style.display = 'none';
                     submitButton.disabled = false;
                     return;

@@ -372,12 +372,12 @@
                         <input type="number" name="organiques_grand" min="0" value="0" class="organique-input">
                     </div>
                     <div class="organique-size-group">
-                        <label>Petits organiques</label>
-                        <input type="number" name="organiques_petit" min="0" value="0" class="organique-input">
+                        <label>Moyens organiques</label>
+                        <input type="number" name="organiques_moyen" min="0" value="0" class="organique-input">
                     </div>
                     <div class="organique-size-group">
-                        <label>Très petits organiques</label>
-                        <input type="number" name="organiques_tres_petit" min="0" value="0" class="organique-input">
+                        <label>Petits organiques</label>
+                        <input type="number" name="organiques_petit" min="0" value="0" class="organique-input">
                     </div>
                 </div>
                 <p id="organiquesMessage" style="display: none;">Les organiques sont un facteur important à prendre en compte.</p>
@@ -527,6 +527,21 @@
             buildSizeUnit.textContent = `x ${value}`;
         });
 
+        // Gestion de l'affichage des détails des organiques
+        document.querySelectorAll('input[name="organiques"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const details = document.getElementById('organiquesDetails');
+                const message = document.getElementById('organiquesMessage');
+                if (this.value === 'oui') {
+                    details.style.display = 'block';
+                    message.style.display = 'block';
+                } else {
+                    details.style.display = 'none';
+                    message.style.display = 'none';
+                }
+            });
+        });
+
         document.getElementById('devisForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -551,6 +566,11 @@
                     type: Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value),
                     exclusivite: document.querySelector('input[name="exclusivite"]:checked').value,
                     organiques: document.querySelector('input[name="organiques"]:checked').value,
+                    organiquesDetails: {
+                        grand: document.querySelector('input[name="organiques_grand"]').value,
+                        moyen: document.querySelector('input[name="organiques_moyen"]').value,
+                        petit: document.querySelector('input[name="organiques_petit"]').value
+                    },
                     terraforming: document.querySelector('input[name="terraforming"]:checked').value,
                     painting: document.querySelector('input[name="painting"]:checked').value,
                     eau: document.querySelector('input[name="eau"]:checked').value,

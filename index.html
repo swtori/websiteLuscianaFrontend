@@ -495,7 +495,6 @@
                     <li><a href="/"><i class="fas fa-home"></i> Accueil</a></li>
                     <li><a href="#" id="devisLink"><i class="fas fa-file-invoice"></i> Devis</a></li>
                     <li><a href="#" id="bugLink"><i class="fas fa-bug"></i> Signaler un Bug</a></li>
-                    <li><a href="#" id="recrutementLink"><i class="fas fa-users"></i> Rejoindre l'équipe</a></li>
                     <li id="userInfo" style="display: none;">
                         <span style="color: var(--light-color);">
                             <i class="fas fa-user"></i> 
@@ -787,12 +786,6 @@
             devisButtons.forEach(button => {
                 button.addEventListener('click', handleDevisClick);
             });
-        });
-
-        // Gestion du lien de recrutement
-        document.getElementById('recrutementLink').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.open('https://forms.gle/cTSxrW7KX2JRRk6C7', '_blank');
         });
 
         // Gestion du bouton de recrutement
